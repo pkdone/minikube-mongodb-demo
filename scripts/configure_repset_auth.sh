@@ -22,7 +22,7 @@ kubectl exec mongod-0 -c mongod-container -- mongo --eval 'rs.initiate({_id: "Ma
 
 # Wait a bit until the replica set should have a primary ready
 echo "Waiting for the Replica Set to initialise..."
-sleep 15
+sleep 30
 kubectl exec mongod-0 -c mongod-container -- mongo --eval 'rs.status();'
 
 # Create the admin user (this will automatically disable the localhost exception)
