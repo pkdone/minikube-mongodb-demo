@@ -23,7 +23,7 @@ Ensure the following dependencies are already fulfilled on your host Linux/Windo
     $ kubectl get services
     ```
 
-### 1.2 Main Deployment Steps 
+### 1.2 Main Deployment Steps
 
 1. To deploy the MongoDB Service (including the StatefulSet running "mongod" containers), via a command-line terminal/shell, execute the following:
 
@@ -67,7 +67,7 @@ Connect to the container running the first "mongod" replica, then use the Mongo 
     > db.testcoll.insert({a:1});
     > db.testcoll.insert({b:2});
     > db.testcoll.find();
-    
+
 Exit out of the shell and exit out of the first container (“mongod-0”). Then connect to the second container (“mongod-1”), run the Mongo Shell again and see if the previously inserted data is visible to the second "mongod" replica:
 
     $ kubectl exec -it mongod-1 -c mongod-container bash
@@ -76,7 +76,7 @@ Exit out of the shell and exit out of the first container (“mongod-0”). Then
     > db.setSlaveOk(1);
     > use test;
     > db.testcoll.find();
-    
+
 You should see that the two records inserted via the first replica, are visible to the second replica.
 
 #### 1.3.2 Redeployment Without Data Loss Test
@@ -86,7 +86,7 @@ To see if Persistent Volume Claims really are working, run a script to drop the 
     $ ./delete_service.sh
     $ ./recreate_service.sh
     $ kubectl get all
-    
+
 As before, keep re-running the last command above, until you can see that all 3 “mongod” pods and their containers have been successfully started again. Then connect to the first container, run the Mongo Shell and query to see if the data we’d inserted into the old containerised replica-set is still present in the re-instantiated replica set:
 
     $ kubectl exec -it mongod-0 -c mongod-container bash
@@ -94,7 +94,7 @@ As before, keep re-running the last command above, until you can see that all 3 
     > db.getSiblingDB('admin').auth("main_admin", "abc123");
     > use test;
     > db.testcoll.find();
-    
+
 You should see that the two records inserted earlier, are still present.
 
 ### 1.4 Undeploying & Cleaning Down the Kubernetes Environment
@@ -106,7 +106,7 @@ Run the following script to undeploy the MongoDB Service & StatefulSet.
 If you want, you can shutdown the Minikube virtual machine with the following command.
 
     $ minikube stop
-    
+
 
 ## 2 Project Details
 
@@ -126,3 +126,24 @@ If you want, you can shutdown the Minikube virtual machine with the following co
 
 * Leveraging XFS filesystem for data file storage to improve performance _(not worth attempting to implement any hacks here to get this working in Minikube, as Minikube is just a demo/development environment, so raw performance gains from using XFS are not a priority)_
 
+## 3 Troubleshooting
+
+## Error Configuring ReplSet
+
+If you see this error:
+
+MongoDB server version: 3.6.3
+{
+    "ok" : 0,
+    "errmsg" : "replSetInitiate quorum check failed because not all proposed set members responded affirmatively: mongod-1.mongodb-service.default.svc.cluster.local:27017 failed with Couldn't get a connection within the time limit, mongod-2.mongodb-service.default.svc.cluster.local:27017 failed with Couldn't get a connection within the time limit",
+    "code" : 74,
+    "codeName" : "NodeNotFound"
+}
+
+Try restarting minikube:
+
+    $ minikube delete
+    $ rm -rf ~/.minikube
+    $ minikube start
+
+And it should resolve the issue.
