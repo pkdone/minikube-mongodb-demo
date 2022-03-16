@@ -30,3 +30,8 @@ echo "Creating user: 'main_admin'"
 kubectl exec mongod-0 -c mongod-container -- mongo --eval 'db.getSiblingDB("admin").createUser({user:"main_admin",pwd:"'"${1}"'",roles:[{role:"root",db:"admin"}]});'
 echo
 
+# Create a local port forwarding to connect mongodb clients
+echo " Creating port forward for mongodb-service to: 127.0.0.1:27017"
+kubectl port-forward service/mongodb-service 27017:27017 &
+echo
+
