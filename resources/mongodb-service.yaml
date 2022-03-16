@@ -8,20 +8,24 @@ spec:
   ports:
   - port: 27017
     targetPort: 27017
-  clusterIP: None
+  # clusterIP: None # Set to "clusterIP: None" unless external access is required
   selector:
     role: mongo
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mongod
 spec:
   serviceName: mongodb-service
   replicas: 3
+  selector:
+    matchLabels:
+      app: app_mongod
   template:
     metadata:
       labels:
+        app: app_mongod
         role: mongo
         environment: test
         replicaset: MainRepSet
@@ -49,11 +53,11 @@ spec:
           #image: pkdone/mongo-ent:3.4
           image: mongo
           command:
-            - "numactl"
-            - "--interleave=all"
+            # - "numactl"
+            # - "--interleave=all"
             - "mongod"
             - "--wiredTigerCacheSizeGB"
-            - "0.1"
+            - "0.25"
             - "--bind_ip"
             - "0.0.0.0"
             - "--replSet"
