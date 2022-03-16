@@ -33,5 +33,6 @@ echo
 # Create a local port forwarding to connect mongodb clients
 echo " Creating port forward for mongodb-service to: 127.0.0.1:27017"
 kubectl port-forward service/mongodb-service 27017:27017 &
+minikube service mongodb-service &
 echo
 
