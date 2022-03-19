@@ -18,7 +18,7 @@ fi
 
 # Initiate replica set configuration
 echo "Configuring the MongoDB Replica Set"
-kubectl exec mongod-0 -c mongod-container -- mongo --eval 'rs.initiate({_id: "MainRepSet", version: 1, members: [ {_id: 0, host: "mongod-0.mongodb-service.default.svc.cluster.local:27017"}, {_id: 1, host: "mongod-1.mongodb-service.default.svc.cluster.local:27017"}, {_id: 2, host: "mongod-2.mongodb-service.default.svc.cluster.local:27017"} ]});'
+kubectl exec mongod-0 -c mongod-container -- mongo --eval 'rs.initiate({_id: "MainRepSet", version: 1, members: [ {_id: 0, host: "mongod-0.mongodb-service.default.svc.cluster.local:27017", priority: 1}, {_id: 1, host: "mongod-1.mongodb-service.default.svc.cluster.local:27017", priority: 0.5}, {_id: 2, host: "mongod-2.mongodb-service.default.svc.cluster.local:27017", priority: 1} ]});'
 
 # Wait a bit until the replica set should have a primary ready
 echo "Waiting for the Replica Set to initialise..."
@@ -33,6 +33,6 @@ echo
 # Create a local port forwarding to connect mongodb clients
 echo " Creating port forward for mongodb-service to: 127.0.0.1:27017"
 kubectl port-forward service/mongodb-service 27017:27017 &
-minikube service mongodb-service &
+echo "Connect string: mongodb://main_admin:<YOUR_PASSWORD>@0.0.0.0:27017/?authSource=admin&replicaSet=MainRepSet&readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
 echo
 
